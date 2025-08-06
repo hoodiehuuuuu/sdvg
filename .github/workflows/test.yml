@@ -72,7 +72,7 @@ jobs:
   performance:
     runs-on: "ubuntu-latest"
     container:
-      image: "ghcr.io/tarantool/sdvg-ci:0.0.1"
+      image: "ghcr.io/hoodiehuuuuu/sdvg-ci:0.0.1"
     steps:
       - name: "Checkout Pull Request branch"
         uses: "actions/checkout@v4"
@@ -93,6 +93,7 @@ jobs:
         working-directory: "base_branch"
 
       # Запускаем бенчмарки на ветке PR
+
       - name: "Run benchmarks on PR branch"
         run: "make test/performance | tee ../pr-performance.out"
         working-directory: "pr_branch"
