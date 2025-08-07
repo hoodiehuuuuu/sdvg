@@ -147,6 +147,8 @@ jobs:
           output-file-path: './pr-performance.txt'
 #          base-benchmark-file-path: './base_branch/base-performance.txt'
           comment-on-alert: true
+          comment-always: true
           alert-threshold: '110%' # Пример: 10% ухудшение
           fail-on-alert: false # Можно изменить на true, если хотите, чтобы PR падал при регрессии
           github-token: ${{ secrets.GITHUB_TOKEN }}
+          save-data-file: false
