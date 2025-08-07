@@ -139,7 +139,7 @@ jobs:
       # Запускаем бенчмарки на базовой ветке
       - name: "Run benchmarks on base branch"
         run: |
-          make test/performance > base-performance.txt
+          make test/performance | grep -i 'Benchmark' > base-performance.txt
           cat base-performance.txt
         working-directory: "base_branch"
 
@@ -147,7 +147,7 @@ jobs:
 
       - name: "Run benchmarks on PR branch"
         run: |
-          make test/performance > pr-performance.txt
+          make test/performance | grep -i 'Benchmark' > pr-performance.txt
           cat pr-performance.txt
         working-directory: "pr_branch"
 
