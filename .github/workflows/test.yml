@@ -129,20 +129,6 @@ jobs:
           ref: ${{ inputs.head_ref }}
           path: "pr_branch"
 
-      # Клонируем базовую ветку (master)
-      - name: "Checkout Base branch"
-        uses: "actions/checkout@v4"
-        with:
-          ref: ${{ inputs.base_ref }}
-          path: "base_branch"
-
-      # Запускаем бенчмарки на базовой ветке
-      - name: "Run benchmarks on base branch"
-        run: |
-          make test/performance > base-performance.txt
-          cat base-performance.txt
-        working-directory: "base_branch"
-
       # Запускаем бенчмарки на ветке PR
 
       - name: "Run benchmarks on PR branch"
