@@ -140,7 +140,7 @@ jobs:
       # Сравниваем результаты бенчмарков
       - name: "Compare benchmark result"
         if: github.event_name == 'pull_request'
-        uses: "benchmark-action/github-action-benchmark@v1"
+        uses: "rhysd/github-action-benchmark@v1"
         with:
           name: 'SDVG Performance'
           tool: 'go' # или 'pytest-benchmark' / 'go test -bench', если применимо
