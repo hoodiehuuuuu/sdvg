@@ -139,16 +139,16 @@ jobs:
       # Запускаем бенчмарки на базовой ветке
       - name: "Run benchmarks on base branch"
         run: |
-          make test/performance > ../base-performance.txt
-          cat ../base-performance.txt
+          make test/performance > base-performance.txt
+          cat base-performance.txt
         working-directory: "base_branch"
 
       # Запускаем бенчмарки на ветке PR
 
       - name: "Run benchmarks on PR branch"
         run: |
-          make test/performance > ../pr-performance.txt
-          cat ../pr-performance.txt
+          make test/performance > pr-performance.txt
+          cat pr-performance.txt
         working-directory: "pr_branch"
 
       # Сравниваем результаты бенчмарков
@@ -158,8 +158,8 @@ jobs:
         with:
           name: 'SDVG Performance'
           tool: 'go' # или 'pytest-benchmark' / 'go test -bench', если применимо
-          pr-benchmark-file-path: 'pr-performance.txt'
-          base-benchmark-file-path: 'base-performance.txt'
+          pr-benchmark-file-path: './pr_branch/pr-performance.txt'
+          base-benchmark-file-path: './base_branch/base-performance.txt'
           comment-on-alert: true
           alert-threshold: '110%' # Пример: 10% ухудшение
           fail-on-alert: false # Можно изменить на true, если хотите, чтобы PR падал при регрессии
