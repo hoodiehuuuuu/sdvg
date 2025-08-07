@@ -144,7 +144,7 @@ jobs:
         with:
           name: 'SDVG Performance'
           tool: 'go' # или 'pytest-benchmark' / 'go test -bench', если применимо
-          output-file-path: './pr_branch/pr-performance.txt'
+          output-file-path: './pr-performance.txt'
 #          base-benchmark-file-path: './base_branch/base-performance.txt'
           comment-on-alert: true
           alert-threshold: '110%' # Пример: 10% ухудшение
