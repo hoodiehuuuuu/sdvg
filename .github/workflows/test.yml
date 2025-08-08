@@ -135,7 +135,12 @@ jobs:
         run: |
           make test/performance > pr-performance.txt
           cat pr-performance.txt
-#        working-directory: "pr_branch"
+
+      - name: "Download previous benchmark data"
+        uses: actions/cache@v1
+        with:
+          path: ./cache
+          key: ${{ runner.os }}-benchmark
 
       # Сравниваем результаты бенчмарков
       - name: "Compare benchmark result"
