@@ -1,5 +1,7 @@
 name: "Test"
 
+permissions:
+  packages: read
 on:
   workflow_call:
     inputs:
