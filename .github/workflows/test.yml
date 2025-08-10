@@ -120,10 +120,10 @@ jobs:
 
   performance:
     runs-on: "ubuntu-latest"
-    permissions:
-      pull-requests: "write"
     container:
       image: "ghcr.io/hoodiehuuuuu/sdvg-ci:0.0.1"
+    permissions:
+      pull-requests: "write"
     steps:
       - name: "Checkout Pull Request branch"
         uses: "actions/checkout@v4"
