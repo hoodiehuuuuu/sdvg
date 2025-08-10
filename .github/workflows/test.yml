@@ -121,7 +121,7 @@ jobs:
   performance:
     runs-on: "ubuntu-latest"
     permissions:
-      pull-requests: write
+      pull-requests: "write"
     container:
       image: "ghcr.io/hoodiehuuuuu/sdvg-ci:0.0.1"
     steps:
