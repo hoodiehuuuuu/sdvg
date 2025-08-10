@@ -1,7 +1,5 @@
 name: "Test"
 
-permissions:
-  packages: read
 on:
   workflow_call:
     inputs:
@@ -126,6 +124,7 @@ jobs:
       image: "ghcr.io/hoodiehuuuuu/sdvg-ci:0.0.1"
     permissions:
       pull-requests: write
+      packages: read
     steps:
       - name: "Checkout Pull Request branch"
         uses: "actions/checkout@v4"
