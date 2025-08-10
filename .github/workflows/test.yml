@@ -154,7 +154,7 @@ jobs:
 
       - name: "Compare results"
         run: |
-          ./build/ci/compare_metrics.sh ./master_branch/master-performance.txt ./pr_branch/pr-performance.txt --allowed-inaccuracy=5 --alert-threshold=20 > performance-report.md
+          ./pr_branch/build/ci/compare_metrics.sh ./master_branch/master-performance.txt ./pr_branch/pr-performance.txt --allowed-inaccuracy=5 --alert-threshold=20 > performance-report.md
 
       - uses: mshick/add-pr-comment@v2
         with:
