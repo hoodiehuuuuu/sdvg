@@ -95,24 +95,53 @@ jobs:
 #          ./build/ci/go_bench_to_metrics.sh performance.txt master-performance.txt
 #        working-directory: "master_branch"
 
-      - name: "Run benchmarks on PR branch"
-        run: |
-          make test/performance > performance.txt
-          ./build/ci/go_bench_to_metrics.sh performance.txt pr-performance.txt
-
       - uses: "xSAVIKx/artifact-exists-action@v0"
         id: "check"
         with:
-          name: "benchmark-master"
+          name: "benchmark-master.txt"
 
-      - name: Get or create master benchmark
-#        if
-        run: "echo ${{ steps.check.outputs.exists }}"
+      - name: "Fetch master branch"
+        if: ${{ !steps.check.outputs.exists }}
+        uses: "actions/checkout@v4"
+        with:
+          ref: ${{ inputs.head_ref }}
+          path: "master_branch"
 
-#      - name: "Compare results"
-#        run: |
-#          ./pr_branch/build/ci/compare_metrics.sh ./master_branch/master-performance.txt ./pr_branch/pr-performance.txt --allowed-inaccuracy=5 --alert-threshold=20 > performance-report.md
-#
-#      - uses: mshick/add-pr-comment@v2
-#        with:
-#          message-path: "performance-report.md"
+      - name: "Create master benchmark"
+        if: ${{ !steps.check.outputs.exists }}
+        working-directory: "master_branch"
+        run: |
+          make test/performance > performance.txt
+          ./build/ci/go_bench_to_metrics.sh performance.txt benchmark-master.txt
+
+      - name: "Upload master artifact if missing for next workflows"
+        if: ${{ !steps.check.outputs.exists }}
+        uses: "actions/upload-artifact@v4"
+        with:
+          name: "benchmark-master.txt"
+          path: "master_branch/benchmark-master.txt"
+
+      - name: "Download master benchmark"
+        if: ${{ steps.check.outputs.exists }}
+        uses: "actions/download-artifact@v4"
+        with:
+          name: "benchmark-master.txt"
+          path: "master_branch"
+
+      - name: "Run benchmarks on PR branch"
+        run: |
+          make test/performance > performance.txt
+          ./build/ci/go_bench_to_metrics.sh performance.txt benchmark-pr.txt
+
+      - name: "Compare results"
+        run: |
+          ./pr_branch/build/ci/compare_metrics.sh \
+              ./master_branch/benchmark-master.txt \
+              benchmark-pr.txt \
+              --allowed-inaccuracy=5 \
+              --alert-threshold=20 \
+          > performance-report.md
+
+      - uses: "mshick/add-pr-comment@v2"
+        with:
+          message-path: "performance-report.md"
