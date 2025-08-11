@@ -67,95 +67,52 @@ jobs:
 #          file: "coverage.out"
 #          format: "golang"
 
-#  ### PERFORMANCE ###
-#
-#  performance:
-#    runs-on: "ubuntu-latest"
-#    container:
-#      image: "ghcr.io/hoodiehuuuuu/sdvg-ci:0.0.1"
-#    steps:
-#      - name: "Checkout Pull Request branch"
-#        uses: "actions/checkout@v4"
-#        with:
-#          ref: ${{ inputs.head_ref }}
-#          path: "pr_branch"
-#
-#      # Клонируем базовую ветку (master)
-#      - name: "Checkout Base branch"
-#        uses: "actions/checkout@v4"
-#        with:
-#          ref: ${{ inputs.base_ref }}
-#          path: "base_branch"
-#
-#      # Запускаем бенчмарки на базовой ветке
-#      - name: "Run benchmarks on base branch"
-#        run: |
-#          make test/performance > ../base-performance.txt
-#          cat ../base-performance.txt
-#        working-directory: "base_branch"
-#
-#      # Запускаем бенчмарки на ветке PR
-#
-#      - name: "Run benchmarks on PR branch"
-#        run: |
-#          make test/performance > ../pr-performance.txt
-#          cat ../pr-performance.txt
-#        working-directory: "pr_branch"
-#
-#      # Сравниваем результаты бенчмарков
-#      - name: "Compare benchmark result"
-#        if: github.event_name == 'pull_request'
-#        uses: "openpgpjs/github-action-pull-request-benchmark@v1"
-#        with:
-#          name: 'SDVG Performance'
-#          tool: 'go' # или 'pytest-benchmark' / 'go test -bench', если применимо
-#          pr-benchmark-file-path: 'pr-performance.txt'
-#          base-benchmark-file-path: 'base-performance.txt'
-#          comment-on-alert: true
-#          alert-threshold: '110%' # Пример: 10% ухудшение
-#          fail-on-alert: false # Можно изменить на true, если хотите, чтобы PR падал при регрессии
-#          github-token: ${{ secrets.GITHUB_TOKEN }}
-
   ### PERFORMANCE ###
 
   performance:
+    if: ${{ github.event_name == 'pull_request' }}
     runs-on: "ubuntu-latest"
     container:
       image: "ghcr.io/hoodiehuuuuu/sdvg-ci:0.0.1"
     permissions:
       pull-requests: write
       packages: read
-    steps:
-      - name: "Checkout Pull Request branch"
-        uses: "actions/checkout@v4"
-        with:
-          ref: ${{ inputs.head_ref }}
-          path: "pr_branch"
 
-      - name: "Checkout master branch"
-        uses: "actions/checkout@v4"
-        with:
-          ref: ${{ inputs.head_ref }}
-          path: "master_branch"
+    steps:
+      - uses: "actions/checkout@v4"
+
+#      - name: "Checkout master branch"
+#        uses: "actions/checkout@v4"
+#        with:
+#          ref: ${{ inputs.head_ref }}
+#          path: "master_branch"
 
       # Запускаем бенчмарки на ветке PR
 
-      - name: "Run benchmarks on master branch"
-        run: |
-          make test/performance > performance.txt
-          ./build/ci/go_bench_to_metrics.sh performance.txt master-performance.txt
-        working-directory: "master_branch"
+#      - name: "Run benchmarks on master branch"
+#        run: |
+#          make test/performance > performance.txt
+#          ./build/ci/go_bench_to_metrics.sh performance.txt master-performance.txt
+#        working-directory: "master_branch"
 
       - name: "Run benchmarks on PR branch"
         run: |
           make test/performance > performance.txt
           ./build/ci/go_bench_to_metrics.sh performance.txt pr-performance.txt
-        working-directory: "pr_branch"
 
-      - name: "Compare results"
-        run: |
-          ./pr_branch/build/ci/compare_metrics.sh ./master_branch/master-performance.txt ./pr_branch/pr-performance.txt --allowed-inaccuracy=5 --alert-threshold=20 > performance-report.md
-
-      - uses: mshick/add-pr-comment@v2
+      - uses: "xSAVIKx/artifact-exists-action@v0"
+        id: "check"
         with:
-          message-path: "performance-report.md"
+          name: "benchmark-master"
+
+      - name: Get or create master benchmark
+#        if
+        run: "echo ${{ steps.check.outputs.exists }}"
+
+#      - name: "Compare results"
+#        run: |
+#          ./pr_branch/build/ci/compare_metrics.sh ./master_branch/master-performance.txt ./pr_branch/pr-performance.txt --allowed-inaccuracy=5 --alert-threshold=20 > performance-report.md
+#
+#      - uses: mshick/add-pr-comment@v2
+#        with:
+#          message-path: "performance-report.md"
