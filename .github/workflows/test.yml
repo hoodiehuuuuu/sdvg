@@ -81,17 +81,25 @@ jobs:
     steps:
       - uses: "actions/checkout@v4"
 
+      - name: "Set up Python"
+        uses: "actions/setup-python@v5"
+        with:
+          python-version: '3.x'
+
+      - name: "Install requirements"
+        run: "make bench/prepare"
+
       - name: "Try to get master benchmark artifact"
         continue-on-error: true
         uses: "actions/download-artifact@v4"
         with:
           name: "benchmark-master"
-          path: "artifacts"
+          path: "./"
 
       - name: "Check artifact exists"
         id: "check"
         run: |
-          echo "exists=$(ls artifacts/benchmark-master.txt 2>/dev/null | wc -l)" >> $GITHUB_OUTPUT
+          echo "exists=$(ls benchmark-master.txt 2>/dev/null | wc -l)" >> $GITHUB_OUTPUT
 
       - name: "Fetch master branch"
         if: ${{ steps.check.outputs.exists == '0' }}
@@ -104,30 +112,23 @@ jobs:
         if: ${{ steps.check.outputs.exists == '0' }}
         working-directory: "master_branch"
         run: |
-          make test/performance > performance.txt
-          ./build/ci/go_bench_to_metrics.sh performance.txt benchmark-master.txt
-          mv benchmark-master.txt ../artifacts
+          mkdir -p ../artifacts
+          make test/performance > ./benchmark-master.txt
 
       - name: "Upload master artifact if missing for next workflows"
         if: ${{ steps.check.outputs.exists == '0' }}
         uses: "actions/upload-artifact@v4"
         with:
           name: "benchmark-master"
-          path: "artifacts/benchmark-master.txt"
+          path: "./benchmark-master.txt"
 
       - name: "Run benchmarks on PR branch"
         run: |
-          make test/performance > performance.txt
-          ./build/ci/go_bench_to_metrics.sh performance.txt benchmark-pr.txt
+          make test/performance > benchmark-pr.txt
 
       - name: "Compare results"
         run: |
-          ./build/ci/compare_metrics.sh \
-              artifacts/benchmark-master.txt \
-              benchmark-pr.txt \
-              --allowed-inaccuracy=5 \
-              --alert-threshold=20 \
-          > performance-report.md
+          make bench/compare old_bench=benchmark-master.txt new_bench=benchmark-pr.txt > performance-report.md
 
       - uses: "mshick/add-pr-comment@v2"
         with:
