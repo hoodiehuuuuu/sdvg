@@ -81,52 +81,39 @@ jobs:
     steps:
       - uses: "actions/checkout@v4"
 
-#      - name: "Checkout master branch"
-#        uses: "actions/checkout@v4"
-#        with:
-#          ref: ${{ inputs.head_ref }}
-#          path: "master_branch"
-
-      # Запускаем бенчмарки на ветке PR
-
-#      - name: "Run benchmarks on master branch"
-#        run: |
-#          make test/performance > performance.txt
-#          ./build/ci/go_bench_to_metrics.sh performance.txt master-performance.txt
-#        working-directory: "master_branch"
-
-      - uses: "xSAVIKx/artifact-exists-action@v0"
-        id: "check"
+      - name: "Try to get master benchmark artifact"
+        continue-on-error: true
+        uses: "actions/download-artifact@v4"
         with:
-          name: "benchmark-master.txt"
+          name: "benchmark-master"
+          path: "artifacts"
+
+      - name: "Check artifact exists"
+        id: "check"
+        run: |
+          echo "exists=$(ls artifacts/bench-master.txt 2>/dev/null | wc -l)" >> $GITHUB_OUTPUT
 
       - name: "Fetch master branch"
-        if: ${{ !steps.check.outputs.exists }}
+        if: ${{ steps.check.outputs.exists == '0' }}
         uses: "actions/checkout@v4"
         with:
           ref: ${{ inputs.head_ref }}
           path: "master_branch"
 
       - name: "Create master benchmark"
-        if: ${{ !steps.check.outputs.exists }}
+        if: ${{ steps.check.outputs.exists == '0' }}
         working-directory: "master_branch"
         run: |
           make test/performance > performance.txt
           ./build/ci/go_bench_to_metrics.sh performance.txt benchmark-master.txt
+          mv benchmark-master.txt ../artifacts
 
       - name: "Upload master artifact if missing for next workflows"
-        if: ${{ !steps.check.outputs.exists }}
+        if: ${{ steps.check.outputs.exists != '0' }}
         uses: "actions/upload-artifact@v4"
         with:
-          name: "benchmark-master.txt"
-          path: "master_branch/benchmark-master.txt"
-
-      - name: "Download master benchmark"
-        if: ${{ steps.check.outputs.exists }}
-        uses: "actions/download-artifact@v4"
-        with:
-          name: "benchmark-master.txt"
-          path: "master_branch"
+          name: "benchmark-master"
+          path: "artifacts/benchmark-master.txt"
 
       - name: "Run benchmarks on PR branch"
         run: |
@@ -136,7 +123,7 @@ jobs:
       - name: "Compare results"
         run: |
           ./pr_branch/build/ci/compare_metrics.sh \
-              ./master_branch/benchmark-master.txt \
+              artifacts/benchmark-master.txt \
               benchmark-pr.txt \
               --allowed-inaccuracy=5 \
               --alert-threshold=20 \
