@@ -5,7 +5,7 @@ WORKDIR /tmp
 # Install dependencies
 
 RUN apk update \
-    && apk add --update --no-cache bash curl git make gcc musl-dev docker
+    && apk add --update --no-cache bash curl git make gcc musl-dev docker tar
 
 # Configure python
 
