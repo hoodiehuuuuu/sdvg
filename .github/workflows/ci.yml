@@ -45,9 +45,12 @@ jobs:
 #          git push --tags
 #          echo "VERSION=${VERSION}" >> "${GITHUB_OUTPUT}"
 
-  test:
+#  test:
 #    needs: ["create-semantic-tag"]
-    uses: "./.github/workflows/test.yml"
+#    uses: "./.github/workflows/test.yml"
+
+  performance:
+    uses: "./.github/workflows/performance.yml"
 
 #  build:
 #    needs: ["test"]

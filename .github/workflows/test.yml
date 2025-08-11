@@ -8,7 +8,7 @@ env:
 
 jobs:
 
-  ## LINT ###
+  ### LINT ###
 
   lint:
     runs-on: "ubuntu-latest"
@@ -25,7 +25,7 @@ jobs:
           name: "codequality"
           path: "lint.json"
 
-  ## UNIT ###
+  ### UNIT ###
 
   unit:
     runs-on: "ubuntu-latest"
