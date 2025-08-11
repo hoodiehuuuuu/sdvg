@@ -5,7 +5,12 @@ WORKDIR /tmp
 # Install dependencies
 
 RUN apk update \
-    && apk add --update --no-cache bash curl git make gcc musl-dev docker python3 py3-pip
+    && apk add --update --no-cache bash curl git make gcc musl-dev docker
+
+# Configure python
+
+RUN apk add --no-cache python3 py3-pip \
+    && ln -sf /usr/bin/pip3 /usr/bin/pip
 
 # Configure Go
 
