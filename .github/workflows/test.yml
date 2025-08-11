@@ -121,7 +121,7 @@ jobs:
         run: make test/performance > benchmark-pr.txt
 
       - name: "Compare results"
-        run: make bench/compare old_bench=benchmark-master.txt new_bench=benchmark-pr.txt > performance-report.md
+        run: make bench/compare > performance-report.md
 
       - uses: "mshick/add-pr-comment@v2"
         with:

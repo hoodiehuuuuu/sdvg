@@ -19,7 +19,7 @@ ci/push:
 	docker push $(ci_image)
 
 bench/prepare:
-	pip3 install -r ./build/ci/requirements.txt
+	pip install -r ./build/ci/requirements.txt
 
 old_bench ?= benchmark-master.txt
 new_bench ?= benchmark-pr.txt
