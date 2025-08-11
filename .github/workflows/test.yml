@@ -84,9 +84,9 @@ jobs:
       - name: "Prepare bench dependencies"
         run: |
           python3 -m venv venv
-          source venv/bin/activate
-          pip install --upgrade pip
-          pip install -r ./build/ci/requirements.txt
+          source venv/bin/activate \
+          && pip install --upgrade pip \
+          && pip install -r ./build/ci/requirements.txt
         
       - name: "Install requirements"
         run: "make bench/prepare"
@@ -127,6 +127,7 @@ jobs:
       - name: "Run benchmarks on PR branch"
         run: |
           make test/performance > benchmark-pr.txt
+
 
       - name: "Compare results"
         run: |
