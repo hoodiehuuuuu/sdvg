@@ -91,7 +91,7 @@ jobs:
       - name: "Check artifact exists"
         id: "check"
         run: |
-          echo "exists=$(ls artifacts/bench-master.txt 2>/dev/null | wc -l)" >> $GITHUB_OUTPUT
+          echo "exists=$(ls artifacts/benchmark-master.txt 2>/dev/null | wc -l)" >> $GITHUB_OUTPUT
 
       - name: "Fetch master branch"
         if: ${{ steps.check.outputs.exists == '0' }}
