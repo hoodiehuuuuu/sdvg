@@ -10,9 +10,7 @@ RUN apk update \
 # Configure python
 
 RUN apk add --no-cache python3 py3-pip \
-    && ln -sf /usr/bin/pip3 /usr/bin/pip \
-    && python3 -m ensurepip \
-    && python3 -m pip install --upgrade pip setuptools wheel \
+    && ln -sf /usr/bin/pip3 /usr/bin/pip
 
 # Configure Go
 

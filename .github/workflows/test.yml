@@ -84,9 +84,9 @@ jobs:
       - name: "Prepare bench dependencies"
         run: |
           python3 -m venv venv
-          . venv/bin/activate
-          pip3 install --upgrade pip
-          pip3 install -r ./build/ci/requirements.txt
+          ./venv/bin/activate
+          pip install --upgrade pip
+          pip install -r ./build/ci/requirements.txt
         
       - name: "Install requirements"
         run: "make bench/prepare"
