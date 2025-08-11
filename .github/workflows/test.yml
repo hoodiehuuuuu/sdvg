@@ -81,15 +81,8 @@ jobs:
     steps:
       - uses: "actions/checkout@v4"
 
-      - name: "Prepare bench dependencies"
-        run: |
-          python3 -m venv venv
-          source venv/bin/activate \
-          && pip install --upgrade pip \
-          && pip install -r ./build/ci/requirements.txt
-        
       - name: "Install requirements"
-        run: "source venv/bin/activate && make bench/prepare"
+        run: "make bench/prepare"
 
       - name: "Try to get master benchmark artifact"
         continue-on-error: true
@@ -115,7 +108,7 @@ jobs:
         working-directory: "master_branch"
         run: |
           mkdir -p ../artifacts
-          make test/performance > ./benchmark-master.txt
+          make test/performance > ../benchmark-master.txt
 
       - name: "Upload master artifact if missing for next workflows"
         if: ${{ steps.check.outputs.exists == '0' }}
@@ -125,13 +118,10 @@ jobs:
           path: "./benchmark-master.txt"
 
       - name: "Run benchmarks on PR branch"
-        run: |
-          make test/performance > benchmark-pr.txt
-
+        run: make test/performance > benchmark-pr.txt
 
       - name: "Compare results"
-        run: |
-          make bench/compare old_bench=benchmark-master.txt new_bench=benchmark-pr.txt > performance-report.md
+        run: make bench/compare old_bench=benchmark-master.txt new_bench=benchmark-pr.txt > performance-report.md
 
       - uses: "mshick/add-pr-comment@v2"
         with:

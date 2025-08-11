@@ -9,10 +9,11 @@ RUN apk update \
 
 # Configure python
 
-ARG PYTHON_VERSION=3.10
-
 RUN apk add --no-cache python3 py3-pip \
-    && ln -sf /usr/bin/pip3 /usr/bin/pip
+    && python3 -m venv /venv \
+    && /venv/bin/pip install --upgrade pip setuptools wheel
+
+ENV PATH="/venv/bin:$PATH"
 
 # Configure Go
 
