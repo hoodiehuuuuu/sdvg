@@ -1,4 +1,4 @@
-name: "Check performance"
+name: "Compare performance"
 
 on:
   workflow_call:
