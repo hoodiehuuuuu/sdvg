@@ -89,7 +89,7 @@ jobs:
           && pip install -r ./build/ci/requirements.txt
         
       - name: "Install requirements"
-        run: "make bench/prepare"
+        run: "source venv/bin/activate && make bench/prepare"
 
       - name: "Try to get master benchmark artifact"
         continue-on-error: true
