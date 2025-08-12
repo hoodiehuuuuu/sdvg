@@ -9,9 +9,12 @@ RUN apk update \
 
 # Configure python
 
+COPY ./build/ci/requirements.txt ./requirements.txt
+
 RUN apk add --no-cache python3 py3-pip \
     && python3 -m venv /venv \
-    && /venv/bin/pip install --upgrade pip setuptools wheel
+    && /venv/bin/pip install --upgrade pip setuptools wheel \
+    && /venv/bin/pip install -r ./requirements.txt
 
 ENV PATH="/venv/bin:$PATH"
 

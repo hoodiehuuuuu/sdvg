@@ -5,6 +5,7 @@ on:
 
 env:
   GIT_CONFIG_GLOBAL: "/root/.gitconfig" # fix path in container (https://github.com/actions/runner/issues/2033)
+  BENCH_MASTER_CACHE_KEY: "benchmark-master"
 
 jobs:
 
@@ -13,7 +14,7 @@ jobs:
   lint:
     runs-on: "ubuntu-latest"
     container:
-      image: "ghcr.io/tarantool/sdvg-ci:0.0.2"
+      image: "ghcr.io/hoodiehuuuuu/sdvg-ci:0.0.2"
     steps:
       - uses: "actions/checkout@v4"
 
@@ -30,7 +31,7 @@ jobs:
   unit:
     runs-on: "ubuntu-latest"
     container:
-      image: "ghcr.io/tarantool/sdvg-ci:0.0.2"
+      image: "ghcr.io/hoodiehuuuuu/sdvg-ci:0.0.2"
     steps:
       - uses: "actions/checkout@v4"
 
@@ -42,7 +43,7 @@ jobs:
   cover:
     runs-on: "ubuntu-latest"
     container:
-      image: "ghcr.io/tarantool/sdvg-ci:0.0.2"
+      image: "ghcr.io/hoodiehuuuuu/sdvg-ci:0.0.2"
     steps:
       - uses: "actions/checkout@v4"
 
@@ -55,3 +56,39 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           file: "coverage.out"
           format: "golang"
+
+  ### PERFORMANCE ###
+
+  compare-performance:
+    if: ${{ github.event_name == 'pull_request' }}
+    runs-on: "ubuntu-latest"
+    steps:
+      - uses: "./.github/workflows/perf-compare.yml"
+        with:
+          bench_master_cache_key: "${{ env.BENCH_MASTER_CACHE_KEY }}"
+
+  update-master-cache:
+    if: ${{ github.ref_name == github.event.repository.default_branch }}
+    runs-on: "ubuntu-latest"
+    container:
+      image: "ghcr.io/hoodiehuuuuu/sdvg-ci:0.0.2"
+
+    steps:
+      - uses: "actions/checkout@v4"
+
+      - name: "Create master benchmark"
+        run: make test/performance > ./benchmark-master.txt
+
+      - name: "Delete previous Cache"
+        continue-on-error: true
+        run: |
+          gh extension install actions/gh-actions-cache
+          gh actions-cache delete "${{ env.BENCH_MASTER_CACHE_KEY }}" --confirm
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: "Save benchmark-master.txt to cache"
+        uses: "actions/cache/save@v4"
+        with:
+          key: "${{ env.BENCH_MASTER_CACHE_KEY }}"
+          path: "benchmark-master.txt"
