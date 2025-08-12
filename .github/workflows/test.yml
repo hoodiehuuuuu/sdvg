@@ -6,6 +6,10 @@ on:
 env:
   GIT_CONFIG_GLOBAL: "/root/.gitconfig" # fix path in container (https://github.com/actions/runner/issues/2033)
 
+defaults:
+  run:
+    shell: "bash"
+
 jobs:
 
   ### LINT ###
@@ -13,7 +17,7 @@ jobs:
   lint:
     runs-on: "ubuntu-latest"
     container:
-      image: "ghcr.io/tarantool/sdvg-ci:0.0.2"
+      image: "ghcr.io/hoodiehuuuuu/sdvg-ci:0.0.2"
     steps:
       - uses: "actions/checkout@v4"
 
@@ -30,7 +34,7 @@ jobs:
   unit:
     runs-on: "ubuntu-latest"
     container:
-      image: "ghcr.io/tarantool/sdvg-ci:0.0.2"
+      image: "ghcr.io/hoodiehuuuuu/sdvg-ci:0.0.2"
     steps:
       - uses: "actions/checkout@v4"
 
@@ -42,7 +46,7 @@ jobs:
   cover:
     runs-on: "ubuntu-latest"
     container:
-      image: "ghcr.io/tarantool/sdvg-ci:0.0.2"
+      image: "ghcr.io/hoodiehuuuuu/sdvg-ci:0.0.2"
     steps:
       - uses: "actions/checkout@v4"
 
@@ -61,10 +65,12 @@ jobs:
   performance:
     runs-on: "ubuntu-latest"
     env:
-      BENCH_MASTER_ARTIFACT_KEY: "benchmark-master"
-      BENCH_MASTER_FILE_PATH: "benchmark-master.txt"
+      BENCH_MASTER_ARTIFACT_KEY: "bench-master"
+      BENCH_MASTER_INFO_DIR: "bench-master-info"
+      BENCH_MASTER_FILE_PATH: "bench-master-info/benchamrk-master.txt"
+      BENCH_MASTER_SHA_FILE_PATH: "bench-master-info/benchamrk-master-sha.txt"
     container:
-      image: "ghcr.io/tarantool/sdvg-ci:0.0.2"
+      image: "ghcr.io/hoodiehuuuuu/sdvg-ci:0.0.2"
 
     steps:
       - uses: "actions/checkout@v4"
@@ -77,38 +83,70 @@ jobs:
           if_no_artifact_found: "warn"
           allow_forks: false
           name: "${{ env.BENCH_MASTER_ARTIFACT_KEY }}"
-          path: "${{ env.BENCH_MASTER_FILE_PATH }}"
+          path: "${{ env.BENCH_MASTER_INFO_DIR }}"
 
       - name: "Run benchmarks on current branch"
-        run: "make test/performance | tee benchmark-pr.txt; exit ${PIPESTATUS[0]}"
+        run: "make test/performance | tee benchmark.txt; exit ${PIPESTATUS[0]}"
 
-      - name: "Get comparison results"
+      - name: "Make comparison report"
         run: |
-          if [ ! -s ${{ env.BENCH_MASTER_FILE_PATH }} ]; then
+          OLD_FILE_PATH="${{ env.BENCH_MASTER_FILE_PATH }}"
+          SHA_FILE_PATH="${{ env.BENCH_MASTER_SHA_FILE_PATH }}"
+          base_branch=${{ github.event.repository.default_branch }}
+          header_ending=""
+  
+          if [ ! -s "$OLD_FILE_PATH" ]; then
             echo -e "> [!WARNING]\n> No test results found for master branch. Please run workflow on master first to compare results.\n" \
               >> performance-report.md
+          
+            OLD_FILE_PATH=""
+          
+            if [[ "${GITHUB_EVENT_NAME}" == "pull_request" ]]; then
+              header_ending="\`${GITHUB_HEAD_REF}\`"
+            else 
+              header_ending="\`${base_branch}\`"
+            fi
+
+          else
+            if [[ "${GITHUB_EVENT_NAME}" == "pull_request" ]]; then
+              header_ending="\`${base_branch}\` VS \`${GITHUB_HEAD_REF}\`"
+            else 
+              if [ -s "$SHA_FILE_PATH" ]; then
+                header_ending="\`${base_branch} ${GITHUB_SHA:0:7}\` VS \`${base_branch} $(cat '$SHA_FILE_PATH')\`"
+              fi
+            fi
           fi
+  
           echo -e \
-            "# Perf tests comparison: \`${{ github.event.repository.default_branch }}\` VS \`${{ github.head_ref }}\`\n" \
+            "# Perf tests report: ${header_ending}\n" \
             >> performance-report.md
+
           python ./build/ci/compare_benchmarks.py \
-            --olf-file ${{ env.BENCH_MASTER_FILE_PATH }} \
-            --new-file benchmark-pr.txt \
+            --old-file "$OLD_FILE_PATH" \
+            --new-file benchmark.txt \
             --alert-threshold 7 \
             --aggregation mean \
             >> performance-report.md
+
           cat performance-report.md >> $GITHUB_STEP_SUMMARY
 
       - uses: "mshick/add-pr-comment@v2"
-        if: ${{ github.event_name == 'pull_request' }}
+        if: "${{ github.event_name == 'pull_request' }}"
         with:
           message-path: "performance-report.md"
           message-id: "perf-report-pr-${{ github.event.pull_request.number }}"
           refresh-message-position: true
 
+      - name: "Prepare master benchmark info for uploading as artifact"
+        if: "${{ github.ref_name == github.event.repository.default_branch }}"
+        run: |
+          mkdir -p ${{ env.BENCH_MASTER_INFO_DIR }}
+          mv benchmark.txt "${{ env.BENCH_MASTER_FILE_PATH }}"
+          echo "${GITHUB_SHA:0:7}" > ${{ env.BENCH_MASTER_SHA_FILE_PATH }}
+
       - name: "Upload master benchmark artifact"
         if: "${{ github.ref_name == github.event.repository.default_branch }}"
         uses: "actions/upload-artifact@v4"
         with:
-          name: "${{ BENCH_MASTER_ARTIFACT_KEY }}"
-          path: "${{ env.BENCH_MASTER_FILE_PATH }}"
+          name: "${{ env.BENCH_MASTER_ARTIFACT_KEY }}"
+          path: "${{ env.BENCH_MASTER_INFO_DIR }}"
