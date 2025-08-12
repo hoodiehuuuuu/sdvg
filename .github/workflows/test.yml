@@ -6,6 +6,10 @@ on:
 env:
   GIT_CONFIG_GLOBAL: "/root/.gitconfig" # fix path in container (https://github.com/actions/runner/issues/2033)
 
+defaults:
+  run:
+    shell: "bash"
+
 jobs:
 
   ### LINT ###
@@ -13,7 +17,7 @@ jobs:
   lint:
     runs-on: "ubuntu-latest"
     container:
-      image: "ghcr.io/tarantool/sdvg-ci:0.0.2"
+      image: "ghcr.io/hoodiehuuuuu/sdvg-ci:0.0.2"
     steps:
       - uses: "actions/checkout@v4"
 
@@ -30,7 +34,7 @@ jobs:
   unit:
     runs-on: "ubuntu-latest"
     container:
-      image: "ghcr.io/tarantool/sdvg-ci:0.0.2"
+      image: "ghcr.io/hoodiehuuuuu/sdvg-ci:0.0.2"
     steps:
       - uses: "actions/checkout@v4"
 
@@ -42,7 +46,7 @@ jobs:
   cover:
     runs-on: "ubuntu-latest"
     container:
-      image: "ghcr.io/tarantool/sdvg-ci:0.0.2"
+      image: "ghcr.io/hoodiehuuuuu/sdvg-ci:0.0.2"
     steps:
       - uses: "actions/checkout@v4"
 
@@ -64,7 +68,7 @@ jobs:
       BENCH_MASTER_ARTIFACT_KEY: "benchmark-master"
       BENCH_MASTER_FILE_PATH: "benchmark-master.txt"
     container:
-      image: "ghcr.io/tarantool/sdvg-ci:0.0.2"
+      image: "ghcr.io/hoodiehuuuuu/sdvg-ci:0.0.2"
 
     steps:
       - uses: "actions/checkout@v4"
@@ -84,15 +88,17 @@ jobs:
 
       - name: "Get comparison results"
         run: |
+          OLD_FILE_PATH="${{ env.BENCH_MASTER_FILE_PATH }}"
           if [ ! -s ${{ env.BENCH_MASTER_FILE_PATH }} ]; then
             echo -e "> [!WARNING]\n> No test results found for master branch. Please run workflow on master first to compare results.\n" \
               >> performance-report.md
+            OLD_FILE_PATH=""
           fi
           echo -e \
             "# Perf tests comparison: \`${{ github.event.repository.default_branch }}\` VS \`${{ github.head_ref }}\`\n" \
             >> performance-report.md
           python ./build/ci/compare_benchmarks.py \
-            --olf-file ${{ env.BENCH_MASTER_FILE_PATH }} \
+            --old-file "$OLD_FILE_PATH" \
             --new-file benchmark-pr.txt \
             --alert-threshold 7 \
             --aggregation mean \
@@ -100,7 +106,7 @@ jobs:
           cat performance-report.md >> $GITHUB_STEP_SUMMARY
 
       - uses: "mshick/add-pr-comment@v2"
-        if: ${{ github.event_name == 'pull_request' }}
+        if: "${{ github.event_name == 'pull_request' }}"
         with:
           message-path: "performance-report.md"
           message-id: "perf-report-pr-${{ github.event.pull_request.number }}"
@@ -110,5 +116,5 @@ jobs:
         if: "${{ github.ref_name == github.event.repository.default_branch }}"
         uses: "actions/upload-artifact@v4"
         with:
-          name: "${{ BENCH_MASTER_ARTIFACT_KEY }}"
+          name: "${{ env.BENCH_MASTER_ARTIFACT_KEY }}"
           path: "${{ env.BENCH_MASTER_FILE_PATH }}"
