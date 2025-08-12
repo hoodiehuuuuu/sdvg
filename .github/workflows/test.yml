@@ -76,7 +76,7 @@ jobs:
       - name: "Create master benchmark"
         run: make test/performance > ./benchmark-master.txt
 
-      - name: "Delete previous Cache"
+      - name: "Delete previous cache"
         continue-on-error: true
         run: |
           gh extension install actions/gh-actions-cache
