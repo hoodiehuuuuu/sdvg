@@ -23,7 +23,7 @@ on:
 
 env:
   GIT_CONFIG_GLOBAL: "/root/.gitconfig" # fix path in container (https://github.com/actions/runner/issues/2033)
-  CHECKOUT_BRANCH: ${{ inputs.branch || github.head_ref }}
+  CHECKOUT_BRANCH: ${{ inputs.branch != '' && inputs.branch || github.head_ref }}
 
 jobs:
   compare-performance:
