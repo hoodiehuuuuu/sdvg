@@ -23,7 +23,7 @@ on:
 
 env:
   GIT_CONFIG_GLOBAL: "/root/.gitconfig" # fix path in container (https://github.com/actions/runner/issues/2033)
-  CHECKOUT_BRANCH: ${{ inputs.branch != '' && inputs.branch || github.head_ref }}
+  CHECKOUT_BRANCH: "${{ (inputs.branch != '' && inputs.branch) || github.head_ref }}"
 
 jobs:
   compare-performance:
@@ -32,6 +32,9 @@ jobs:
       image: "ghcr.io/hoodiehuuuuu/sdvg-ci:0.0.2"
 
     steps:
+      - run: |
+          echo "branch = ${{ env.CHECKOUT_BRANCH }}"
+
       - uses: "actions/checkout@v4"
         with:
           ref: "${{ env.CHECKOUT_BRANCH }}"
