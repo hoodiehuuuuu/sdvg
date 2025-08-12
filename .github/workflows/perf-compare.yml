@@ -4,19 +4,19 @@ on:
   workflow_dispatch:
     inputs:
       branch:
-        description: "Branch to compare with master"
+        description: "Branch to compare with default branch (master)"
         required: true
         default: ""
         type: string
       bench_master_cache_key:
-        description: "Cache key for master's benchmark result"
+        description: "Cache key for default branch benchmark result"
         required: false
         default: "benchmark-master"
         type: string
   workflow_call:
     inputs:
       bench_master_cache_key:
-        description: "Cache key for master's benchmark result"
+        description: "Cache key for default branch benchmark result"
         required: false
         default: "benchmark-master"
         type: string
