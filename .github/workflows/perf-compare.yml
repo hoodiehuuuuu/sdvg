@@ -26,7 +26,7 @@ env:
   CHECKOUT_BRANCH: "${{ (inputs.branch != '' && inputs.branch) || github.head_ref }}"
 
 jobs:
-  compare-performance:
+  compare:
     runs-on: "ubuntu-latest"
     container:
       image: "ghcr.io/hoodiehuuuuu/sdvg-ci:0.0.2"

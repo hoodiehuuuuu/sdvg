@@ -58,7 +58,7 @@ jobs:
 
   ### PERFORMANCE ###
 
-  compare-performance:
+  performance:
     if: ${{ github.event_name == 'pull_request' }}
     uses: "./.github/workflows/perf-compare.yml"
     with:
