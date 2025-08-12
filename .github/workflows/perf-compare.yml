@@ -32,9 +32,6 @@ jobs:
       image: "ghcr.io/hoodiehuuuuu/sdvg-ci:0.0.2"
 
     steps:
-      - run: |
-          echo "branch = ${{ env.CHECKOUT_BRANCH }}"
-
       - uses: "actions/checkout@v4"
         with:
           ref: "${{ env.CHECKOUT_BRANCH }}"
