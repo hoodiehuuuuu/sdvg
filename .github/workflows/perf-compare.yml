@@ -43,7 +43,7 @@ jobs:
         id: "cache-benchmark"
         uses: "actions/cache/restore@v4"
         with:
-          key: "${{ env.BENCHMARK_MASTER_CACHE_KEY }}"
+          key: "${{ inputs.bench_master_cache_key }}"
           path: "benchmark-master.txt"
 
       - name: "Fetch master branch"
