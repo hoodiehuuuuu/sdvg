@@ -85,7 +85,7 @@ jobs:
           name: "${{ env.BENCH_MASTER_ARTIFACT_KEY }}"
           path: "${{ env.BENCH_MASTER_INFO_DIR }}"
 
-      - name: "Run benchmarks on current branch"
+      - name: "Run benchmarks on current  branch"
         run: "make test/performance | tee benchmark.txt; exit ${PIPESTATUS[0]}"
 
       - name: "Make comparison report"
