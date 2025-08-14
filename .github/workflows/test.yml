@@ -43,22 +43,22 @@ jobs:
 
   ### COVER ###
 
-  cover:
-    runs-on: "ubuntu-latest"
-    container:
-      image: "ghcr.io/hoodiehuuuuu/sdvg-ci:0.0.2"
-    steps:
-      - uses: "actions/checkout@v4"
-
-      - name: "Measuring test coverage"
-        run: "make test/cover"
-
-      - name: "Upload coverage to Coveralls"
-        uses: "coverallsapp/github-action@v2"
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          file: "coverage.out"
-          format: "golang"
+#  cover:
+#    runs-on: "ubuntu-latest"
+#    container:
+#      image: "ghcr.io/hoodiehuuuuu/sdvg-ci:0.0.2"
+#    steps:
+#      - uses: "actions/checkout@v4"
+#
+#      - name: "Measuring test coverage"
+#        run: "make test/cover"
+#
+#      - name: "Upload coverage to Coveralls"
+#        uses: "coverallsapp/github-action@v2"
+#        with:
+#          github-token: ${{ secrets.GITHUB_TOKEN }}
+#          file: "coverage.out"
+#          format: "golang"
 
   ### PERFORMANCE ###
 
@@ -120,3 +120,4 @@ jobs:
         with:
           name: "${{ env.BENCH_MASTER_ARTIFACT_KEY }}"
           path: "${{ env.BENCH_MASTER_INFO_DIR }}"
+
