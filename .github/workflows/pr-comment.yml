@@ -36,11 +36,11 @@ jobs:
           github_token: "${{ secrets.GITHUB_TOKEN }}"
           commit: "${{ github.event.pull_request.head.sha }}"
           if_no_artifact_found: "fail"
-          workflow: "ci.yml"
+          workflow: "CI"
           workflow_conclusion: "" # to ignore status or conclusion in the search
-          allow_forks: false # searching artifact in forks
+          allow_forks: true # searching artifact in forks
           name: "perf-report"
-          path: "performance-report.md"
+          path: "./"
 
       - uses: "mshick/add-pr-comment@v2"
         with:
