@@ -11,7 +11,6 @@ defaults:
     shell: "bash"
 
 jobs:
-
   add-comment:
     runs-on: "ubuntu-latest"
     container:
