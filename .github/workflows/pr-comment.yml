@@ -22,7 +22,7 @@ jobs:
         id: "wait-for-perf"
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          checkName: "test/performance"
+          checkName: "performance"
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
 
       - if: steps.wait-for-perf.outputs.conclusion != 'success'
