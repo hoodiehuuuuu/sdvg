@@ -12,7 +12,6 @@ env:
   GIT_CONFIG_GLOBAL: "/root/.gitconfig" # fix path in container (https://github.com/actions/runner/issues/2033)
 
 jobs:
-
   perf-report:
     runs-on: "ubuntu-latest"
 
