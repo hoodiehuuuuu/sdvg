@@ -11,6 +11,7 @@ defaults:
     shell: "bash"
 
 jobs:
+
   add-comment:
     runs-on: "ubuntu-latest"
     container:
@@ -36,7 +37,7 @@ jobs:
           github_token: "${{ secrets.GITHUB_TOKEN }}"
           commit: "${{ github.event.pull_request.head.sha }}"
           if_no_artifact_found: "fail"
-          workflow: "CI"
+          workflow: "ci.yml"
           workflow_conclusion: "" # to ignore status or conclusion in the search
           allow_forks: true # searching artifact in forks
           name: "perf-report"
